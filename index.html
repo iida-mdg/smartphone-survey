@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Questionnaire</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=Noto+Sans+SC:wght@400;700&family=Noto+Sans:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #005a9c;
+      --light-gray: #f0f0f0;
+      --dark-text: #333;
+    }
+    html {
+      box-sizing: border-box;
+    }
+    *, *:before, *:after {
+      box-sizing: inherit;
+    }
+    body {
+      font-family: 'Noto Sans', 'Noto Sans JP', 'Noto Sans SC', sans-serif;
+      margin: 0;
+      background-color: var(--light-gray);
+      color: var(--dark-text);
+      /* 画面遷移時のガタつきを防ぐ */
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+    }
+    .app-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+    .page {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: var(--light-gray);
+      padding: 20px 15px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+      z-index: 1;
+    }
+    .page-content {
+      width: 100%;
+      max-width: 500px;
+      background-color: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+    /* 画面遷移のアニメーション設定 */
+    .page.off-screen {
+      transform: translateX(100%);
+    }
+    .page.off-screen-left {
+      transform: translateX(-100%);
+    }
+    .page.active {
+      transform: translateX(0);
+      z-index: 2;
+    }
+    header {
+      background-color: var(--primary-color);
+      padding: 15px;
+      text-align: center;
+    }
+    header img {
+      height: 40px;
+      width: auto;
+    }
+    main {
+      padding: 25px;
+    }
+    .question-group {
+      margin-bottom: 25px;
+    }
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 10px;
+      font-size: 1.2em;
+    }
+    label .lang {
+      display: block;
+      font-size: 0.8em;
+      font-weight: normal;
+      color: #666;
+    }
+    select, .crowd-buttons button {
+      width: 100%;
+      padding: 15px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 1.1em;
+    }
+    select {
+      appearance: none;
+      background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007CB2%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E');
+      background-repeat: no-repeat;
+      background-position: right 15px center;
+      background-size: 12px;
+      cursor: pointer;
+    }
+    .crowd-buttons {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+    .crowd-buttons button {
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.2s ease;
+      text-align: left;
+      padding-left: 20px;
+    }
+    .crowd-buttons button:hover {
+      transform: scale(1.02);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .btn-1 { background-color: #5271ff; color: white; }
+    .btn-2 { background-color: #7ed957; color: white; }
+    .btn-3 { background-color: #ffde59; color: #333; }
+    .btn-4 { background-color: #ff914d; color: white; }
+    .btn-5 { background-color: #ff3131; color: white; }
+    
+    #thankyou-page .page-content {
+      text-align: center;
+    }
+    #thankyou-page h2 { font-size: 1.8em; margin-bottom: 20px; }
+    #thankyou-page p { font-size: 1.1em; line-height: 1.6; }
+    .map-button {
+      display: inline-block;
+      margin-top: 30px;
+      padding: 15px 30px;
+      background-color: #28a745;
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+      border-radius: 8px;
+    }
+    .page-footer {
+        margin-top: 20px;
+        text-align: center;
+    }
+    .back-btn {
+        background: none;
+        border: none;
+        color: var(--primary-color);
+        font-weight: bold;
+        cursor: pointer;
+        font-size: 1em;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+
+    <div id="page-nationality" class="page active">
+      <div class="page-content">
+        <header>
+          <img src="https://iida-mdg.github.io/pictogram-signage/logo.png" alt="Logo">
+        </header>
+        <main>
+          <div class="question-group">
+            <label for="nationality">
+              ようこそ！<br>まず、あなたの国籍・地域を教えてください。
+              <span class="lang">Welcome! First, please select your nationality/region. <br> 欢迎！请先选择您的国籍/地区。</span>
+            </label>
+            <select id="nationality" name="nationality">
+              <option value="" data-lang="ja">選択してください / Please select</option>
+              <optgroup label="アジア / Asia">
+                <option value="Japan" data-lang="ja">日本 (Japan)</option>
+                <option value="South Korea" data-lang="en">韓国 (South Korea)</option>
+                <option value="China" data-lang="zh-CN">中国 (China)</option>
+                <option value="Taiwan" data-lang="zh-CN">台湾 (Taiwan)</option>
+                <option value="Hong Kong" data-lang="zh-CN">香港 (Hong Kong)</option>
+                <option value="Thailand" data-lang="en">タイ (Thailand)</option>
+                <option value="Singapore" data-lang="en">シンガポール (Singapore)</option>
+                <option value="Malaysia" data-lang="en">マレーシア (Malaysia)</option>
+                <option value="Philippines" data-lang="en">フィリピン (Philippines)</option>
+                <option value="Vietnam" data-lang="en">ベトナム (Vietnam)</option>
+                <option value="India" data-lang="en">インド (India)</option>
+              </optgroup>
+              <optgroup label="北米 / North America">
+                <option value="USA" data-lang="en">アメリカ合衆国 (USA)</option>
+                <option value="Canada" data-lang="en">カナダ (Canada)</option>
+              </optgroup>
+              <optgroup label="ヨーロッパ / Europe">
+                <option value="UK" data-lang="en">イギリス (UK)</option>
+                <option value="France" data-lang="en">フランス (France)</option>
+                <option value="Germany" data-lang="en">ドイツ (Germany)</option>
+                <option value="Italy" data-lang="en">イタリア (Italy)</option>
+                <option value="Spain" data-lang="en">スペイン (Spain)</option>
+              </optgroup>
+              <optgroup label="オセアニア / Oceania">
+                <option value="Australia" data-lang="en">オーストラリア (Australia)</option>
+                <option value="New Zealand" data-lang="en">ニュージーランド (New Zealand)</option>
+              </optgroup>
+              <option value="Other" data-lang="ja">その他 (Other)</option>
+            </select>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <div id="page-question" class="page off-screen">
+      <div class="page-content">
+        <header>
+            <img src="https://iida-mdg.github.io/pictogram-signage/logo.png" alt="Logo">
+        </header>
+        <main>
+          <div class="question-group">
+            <label id="question-label"></label>
+            <div class="crowd-buttons" id="crowd-buttons-container">
+              <button type="button" class="btn-1" data-value="1" id="btn-text-1"></button>
+              <button type="button" class="btn-2" data-value="2" id="btn-text-2"></button>
+              <button type="button" class="btn-3" data-value="3" id="btn-text-3"></button>
+              <button type="button" class="btn-4" data-value="4" id="btn-text-4"></button>
+              <button type="button" class="btn-5" data-value="5" id="btn-text-5"></button>
+            </div>
+          </div>
+        </main>
+        <footer class="page-footer">
+            <button class="back-btn" id="back-to-nationality">← 国籍を再選択 / Select again</button>
+        </footer>
+      </div>
+    </div>
+
+    <div id="thankyou-page" class="page off-screen">
+        <div class="page-content">
+            <h2>ご協力ありがとうございました！</h2>
+            <p>
+              Thank you for your cooperation!<br>
+              感谢您的合作！
+            </p>
+            <p>お礼に、白川村荻町地区の観光マップをどうぞ。</p>
+            <a href="https://shirakawa-go.gr.jp/datas/files/2024/06/14/b8bacb412f1c48ef7ca091a7f5c6cfc792f0735d.pdf" class="map-button" target="_blank" rel="noopener noreferrer">
+              観光マップを見る
+              <span class="lang" style="display:block; font-weight:normal; font-size: 0.8em; margin-top: 4px;">View Map / 查看地图</span>
+            </a>
+        </div>
+    </div>
+
+  </div>
+
+  <script>
+    // --- 要素の取得 ---
+    const pageNationality = document.getElementById('page-nationality');
+    const pageQuestion = document.getElementById('page-question');
+    const pageThankyou = document.getElementById('thankyou-page');
+    const nationalitySelect = document.getElementById('nationality');
+    const crowdButtonsContainer = document.getElementById('crowd-buttons-container');
+    const backButton = document.getElementById('back-to-nationality');
+
+    // --- 翻訳データ ---
+    const translations = {
+      ja: {
+        question: "現在の混雑具合をどう感じますか？",
+        answers: ["とても空いている", "やや空いている", "ちょうどいい", "やや混雑している", "とても混雑している"]
+      },
+      en: {
+        question: "How do you feel about the crowd level right now?",
+        answers: ["Very empty", "A little empty", "Just right", "A little crowded", "Very crowded"]
+      },
+      'zh-CN': {
+        question: "您对目前的拥挤程度感觉如何？",
+        answers: ["非常空旷", "有点空", "正合适", "有点拥挤", "非常拥挤"]
+      }
+    };
+
+    // --- UI翻訳関数 ---
+    function translateUI(lang) {
+      const langData = translations[lang] || translations.ja; // 見つからなければ日本語を適用
+      document.getElementById('question-label').innerText = langData.question;
+      for (let i = 0; i < 5; i++) {
+        document.getElementById(`btn-text-${i + 1}`).innerText = langData.answers[i];
+      }
+    }
+
+    // --- 画面遷移関数 ---
+    function goToPage(pageToShow) {
+        const pages = [pageNationality, pageQuestion, pageThankyou];
+        pages.forEach(page => {
+            if (page === pageToShow) {
+                page.classList.remove('off-screen', 'off-screen-left');
+                page.classList.add('active');
+            } else if (page.classList.contains('active')) {
+                page.classList.remove('active');
+                page.classList.add('off-screen-left');
+            } else {
+                page.classList.remove('off-screen-left');
+                page.classList.add('off-screen');
+            }
+        });
+    }
+
+    // --- データ送信関数 ---
+    function submitData(nationality, crowdLevel) {
+      // ★★★★★ データを送信するGoogle Apps ScriptのURLに書き換えてください ★★★★★
+      const scriptURL = 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE';
+      const formData = new FormData();
+      formData.append('timestamp', new Date().toISOString());
+      formData.append('nationality', nationality);
+      formData.append('crowd_level', crowdLevel);
+
+      fetch(scriptURL, { method: 'POST', body: formData })
+        .then(response => console.log('Success!', response))
+        .catch(error => console.error('Error!', error.message));
+    }
+
+
+    // --- イベントリスナー ---
+
+    // 国籍が選択されたら…
+    nationalitySelect.addEventListener('change', (e) => {
+      if (!e.target.value) return; // 「選択してください」の場合は何もしない
+
+      const selectedOption = e.target.selectedOptions[0];
+      const lang = selectedOption.dataset.lang;
+      
+      translateUI(lang); // UIを翻訳
+      goToPage(pageQuestion); // 質問ページへ移動
+    });
+    
+    // 戻るボタンが押されたら…
+    backButton.addEventListener('click', () => {
+        goToPage(pageNationality); // 国籍選択ページへ戻る
+    });
+
+    // 混雑度ボタンが押されたら…
+    crowdButtonsContainer.addEventListener('click', (e) => {
+      const button = e.target.closest('button');
+      if (button) {
+        const crowdLevel = button.dataset.value;
+        const nationality = nationalitySelect.value;
+        
+        submitData(nationality, crowdLevel); // データを送信
+        goToPage(pageThankyou); // ありがとうページへ移動
+      }
+    });
+
+    // 初期状態で日本語を表示
+    translateUI('ja');
+
+  </script>
+</body>
+</html>
